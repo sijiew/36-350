@@ -12,3 +12,24 @@ model_select <- function(covariates, responses, cutoff) {
   lm.1 <- lm(responses ~ covariates[, indices])
   return(as.numeric(summary(lm.1)$coefficients[-1,4]))
 }
+
+run_simulation <- function(n_trials, n, p, cutoff) {
+  p.values <- vector(length = 0, mode = "numeric")
+  for (i in 1:n_trials) {
+    d <- generate_data(n, p)
+    data.vals <- model_select(d$covariates, d$responses, cutoff)
+    p.values <- c(p.values, data.vals)
+  }
+  hist(x = p.values,
+       main = paste("P-Values of n: ", n, ", p: ", p, sep=""),
+       xlab = "P-Values",
+       ylab = paste("Frequency in ", n_trials, "trials"))
+}
+
+par(mfrow = c(3,3))
+cutoff = 0.05
+for (n in c(100, 1000, 10000)){
+  for (p in c(10, 20, 50)) {
+    run_simulation(1000, n, p, cutoff)
+  }
+}
